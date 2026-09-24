@@ -1,14 +1,17 @@
 import type Anthropic from "@anthropic-ai/sdk";
-import { agent, type toolType } from "./core.js";
+import { agent, type AgentEventType, type toolType } from "./core.js";
 import { SYSTEM_QUIZ_PROMPT } from "../prompts.js";
 
 type runQuizType = {
   text: string
   numberOfQuestions: number
   askHuman: toolType
+  onEvent?: (event: AgentEventType) => void
 }
 
-export async function runQuiz({ text, numberOfQuestions, askHuman } : runQuizType) {
+export async function runQuiz({ text, numberOfQuestions, askHuman, onEvent } : runQuizType) {
+
+  const emit = onEvent ?? (() => {})
 
   const messages: Anthropic.MessageParam[] = [
     {
@@ -17,5 +20,5 @@ export async function runQuiz({ text, numberOfQuestions, askHuman } : runQuizTyp
     },
   ];
 
-  return await agent({ messages, system: SYSTEM_QUIZ_PROMPT, tools: [askHuman], tool_choice: { type: "auto", disable_parallel_tool_use: true } })
+  return await agent({ messages, system: SYSTEM_QUIZ_PROMPT, tools: [askHuman], tool_choice: { type: "auto", disable_parallel_tool_use: true }, onEvent: emit })
 }

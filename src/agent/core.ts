@@ -9,7 +9,14 @@ type agentType = {
   model?: Anthropic.Messages.Model 
   tools?: toolType[]
   tool_choice?: Anthropic.ToolChoice
+  onEvent?: (event: AgentEventType) => void
 }
+
+export type AgentEventType = 
+  | { type: "text"; text: string }
+  | { type: "tool_call"; name: string; input: unknown }
+  | { type: "tool_result"; name: string; result: string; isError: boolean }
+  | { type: "done"; stopReasoning: string | null; usage: { input: number; output: number }}
 
 export type toolType = {
   name: string
@@ -23,7 +30,9 @@ export type toolType = {
 }
 
 
-export async function agent({ system, messages, model = 'claude-sonnet-4-6', maxSteps = 10, tools, tool_choice } : agentType): Promise<{ text: string; messages: Anthropic.MessageParam[]}> {
+export async function agent({ system, messages, model = 'claude-sonnet-4-6', maxSteps = 10, tools, tool_choice, onEvent } : agentType): Promise<{ text: string; messages: Anthropic.MessageParam[]}> {
+
+  const emit = onEvent ?? (() => {})
 
   const history = [...messages];
 
@@ -53,7 +62,7 @@ export async function agent({ system, messages, model = 'claude-sonnet-4-6', max
     // show all text blocks
     for (const block of response.content) {
       if(block.type === 'text') {
-        console.log(block.text)
+        emit({ type: "text", text: block.text })
       }
     }
 
@@ -64,11 +73,7 @@ export async function agent({ system, messages, model = 'claude-sonnet-4-6', max
       .map((b) => b.text)
       .join("\n")
 
-      console.log(`Stop reasoning: ${response.stop_reason}`);
-
-      if(response.stop_reason === 'end_turn') {
-        console.log(`Tokens. \n\n Input tokens: ${inputTokens}; \n Output tokens: ${outputTokens} \n\n`)
-      }
+      emit({ type: "done", stopReasoning: response.stop_reason, usage: { input: inputTokens, output: outputTokens } })
 
       return { text: finalText, messages: history };
     }
@@ -82,6 +87,8 @@ export async function agent({ system, messages, model = 'claude-sonnet-4-6', max
       if(block.type === 'tool_use') {
         const toolToUse = tools?.find((item) => item.name === block.name);
 
+        emit({ type: "tool_call", name: block.name, input: block.input})
+
         if(!toolToUse) {
           toolResults.push({
             type: 'tool_result',
@@ -89,6 +96,8 @@ export async function agent({ system, messages, model = 'claude-sonnet-4-6', max
             content: 'Unknown tool',
             is_error: true
           });
+
+          emit({ type: "tool_result", name: block.name, result: 'Unknown tool', isError: true})
 
           continue;
         }
@@ -101,6 +110,9 @@ export async function agent({ system, messages, model = 'claude-sonnet-4-6', max
             tool_use_id: block.id,
             content: userAnswer
           })
+
+          emit({ type: "tool_result", name: block.name, result: userAnswer, isError: false})
+
         } catch (error) {
           const msg = error instanceof Error ? error.message : String(error)
 
@@ -110,6 +122,8 @@ export async function agent({ system, messages, model = 'claude-sonnet-4-6', max
             content: `Error from tool: ${msg}`,
             is_error: true
           })
+
+          emit({ type: "tool_result", name: block.name, result: `Error from tool: ${msg}`, isError: true})
         }
       }
     }
