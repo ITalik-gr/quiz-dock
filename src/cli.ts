@@ -74,6 +74,7 @@ const rl = readline.createInterface({ input: process.stdin, output: process.stdo
 if(values.discuss) {
 
   try {
+
     const response = await runDiscuss({ text, ask: (prompt: string) => rl.question(prompt), onEvent: event, documentSections: sections });
 
     console.log('Discuss Result (Messages): ')
