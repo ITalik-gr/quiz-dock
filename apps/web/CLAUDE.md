@@ -41,7 +41,11 @@ Group classes by breakpoint and separate groups with ` | `:
 
 ## Code style
 
-- Split UI into small components. One component per file, PascalCase names, colocated in `components/<area>/` (e.g. `components/quiz/QuestionCard.tsx`). Page files stay thin and compose components
+- Split UI into small components. One component per file, PascalCase names. Pages live in `app/` and stay thin: they compose components
+- `components/` has three folders, no per-page folders:
+  - `ui/` — shadcn base elements
+  - `widgets/` — app building blocks (e.g. `QuestionCard`, `ToolActivity`, `EmptyState`)
+  - `layout/` — app shell (sidebar, top bar, page header, containers)
 - Server components by default; add `"use client"` only where interactivity requires it
 - Props typed with a `type` above the component
 - Comments only where the code is not clear without them, written with `//`. No JSDoc, no comments that restate the code
