@@ -1,25 +1,8 @@
 {
-  "name": "quiz_dock",
-  "version": "1.0.0",
-  "description": "",
-  "license": "ISC",
-  "author": "",
-  "type": "module",
-  "main": "index.js",
-  "directories": {
-    "doc": "docs"
-  },
+  "name": "quiz-dock",
+  "private": true,
   "scripts": {
-    "dev": "node --env-file=.env --import tsx src/cli.ts",
-    "watch": "tsx watch src/cli.ts"
-  },
-  "dependencies": {
-    "@anthropic-ai/sdk": "^0.128.0",
-    "zod": "^4.6.5"
-  },
-  "devDependencies": {
-    "@types/node": "^26.6.2",
-    "tsx": "^4.23.15",
-    "typescript": "^7.0.2"
+    "dev": "pnpm -r --parallel dev",
+    "typecheck": "pnpm -r typecheck"
   }
 }
