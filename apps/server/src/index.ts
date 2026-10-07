@@ -1,8 +1,9 @@
-import { createServer } from "node:http";
+import { serve } from "@hono/node-server"
+import { app, port } from "./app"
 
-const server = createServer((req, res) => {
-  res.writeHead(200, { "Content-Type": "application/json" })
-  res.end(JSON.stringify({ ok: true }));
+console.log(`Server is running on port ${port}`)
+
+serve({
+  fetch: app.fetch,
+  port,
 })
-
-server.listen(3001)

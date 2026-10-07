@@ -13,6 +13,7 @@ export default function HomePage() {
           title="Learn any document"
           description="Upload a document, talk it through with an agent that sticks to the text, then check yourself with a quiz."
         />
+        
         <DocumentStart />
       </PageContainer>
     </>

@@ -1,5 +1,6 @@
 import type { ReactNode } from "react"
 import { PixelPattern } from "./PixelPattern"
+import { api } from "@/lib/api"
 
 type PageHeaderProps = {
   eyebrow?: string
@@ -8,7 +9,11 @@ type PageHeaderProps = {
   actions?: ReactNode
 }
 
-export function PageHeader({ eyebrow, title, description, actions }: PageHeaderProps) {
+export async function PageHeader({ eyebrow, title, description, actions }: PageHeaderProps) {
+
+  const res = await api.health.$get();
+  const data = await res.json() 
+
   return (
     <div className="flex items-start justify-between gap-[24px]">
       <div className="flex max-w-[640px] flex-col gap-[12px]">
@@ -18,6 +23,11 @@ export function PageHeader({ eyebrow, title, description, actions }: PageHeaderP
         </h1>
         {description && <p className="text-[16px] leading-[1.6] text-[#71717a]">{description}</p>}
         {actions && <div className="flex flex-wrap gap-[8px] pt-[8px]">{actions}</div>}
+
+        <div className="">
+          <span>API Health:</span>
+          <span>{data.ok ? 'Ok' : 'Failed'}</span>
+        </div>
       </div>
       <div className="hidden shrink-0 pt-[8px] | md:block">
         <PixelPattern />

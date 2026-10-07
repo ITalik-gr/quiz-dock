@@ -1,5 +1,5 @@
 {
-  "name": "quiz_dock",
+  "name": "@quiz/server",
   "version": "1.0.0",
   "description": "",
   "license": "ISC",
@@ -10,15 +10,18 @@
     "doc": "docs"
   },
   "scripts": {
-    "dev": "node --env-file=.env --watch --import tsx src/index.ts",
+    "dev": "tsx watch src/index.ts",
     "cli": "node --env-file=.env --import tsx src/cli.ts",
     "typecheck": "tsc --noEmit",
     "watch": "tsx watch src/cli.ts"
   },
+  "exports": { ".": "./src/app.ts" },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.128.0",
-    "zod": "^4.6.5",
-    "@quiz/shared": "workspace:*"
+    "@hono/node-server": "^2.1.3",
+    "@quiz/shared": "workspace:*",
+    "hono": "^4.13.13",
+    "zod": "^4.6.5"
   },
   "devDependencies": {
     "@types/node": "^26.6.2",
