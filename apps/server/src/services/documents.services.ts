@@ -22,5 +22,7 @@ export const getDocuments = async () => {
 }
 
 export const getDocument = async (id: string) => {
-  return await db.select().from(documents).where(eq(documents.id, id))
+  const [doc] = await db.select().from(documents).where(eq(documents.id, id))
+
+  return doc;
 }

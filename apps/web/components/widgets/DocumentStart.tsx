@@ -1,17 +1,33 @@
 "use client"
 
+import { useRouter } from 'next/navigation'
 import { useState } from "react"
 import { DocumentDropzone } from "./DocumentDropzone"
 import { ModeChoice, type Mode } from "./ModeChoice"
 import { UrlImport } from "./UrlImport"
 
+import useAction from "@/hooks/useAction"
+import { unwrap } from "@/lib/api-error"
+import { api } from "@/lib/api"
+
+
+
 export function DocumentStart() {
+  const router = useRouter();
   const [file, setFile] = useState<File | null>(null)
 
-  function start(mode: Mode) {
+  const { run, isLoading, error } = useAction((file: File) =>
+    unwrap(api.documents.$post({ form: { file } }))
+  )
+
+  async function start(mode: Mode) {
     if (!file) return
-    // TODO: upload the document, create a `mode` session, navigate to it
-    void mode
+
+    const res = await run(file);
+
+    if(res) {
+      router.push(`/${mode}/${res.id}`)
+    }
   }
 
   return (
@@ -20,7 +36,7 @@ export function DocumentStart() {
         <DocumentDropzone file={file} onFileChange={setFile} />
         <UrlImport />
       </section>
-      <ModeChoice disabled={!file} onSelect={start} />
+      <ModeChoice disabled={!file || isLoading} onSelect={start} />
     </>
   )
 }
